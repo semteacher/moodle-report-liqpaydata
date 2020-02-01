@@ -1,0 +1,200 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template report_liqpaydata/invoice
+}}
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<META http-equiv="X-UA-Compatible" content="IE=8">
+<TITLE>invoice</TITLE>
+<STYLE type="text/css">
+
+@page {
+    margin-top: 40px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.table {
+    border-collapse: collapse;
+    margin-left: 50px; 
+    margin-top: 10px;
+}
+
+.tdbdr {
+    border: 1px solid #808080;
+}
+
+.tdlr {
+    border-left: #808080 1px solid;
+    border-right: #808080 1px solid;
+    padding: 0px 15px 0px 15px;
+    margin: 0px;
+    vertical-align: bottom;
+}
+
+.tdlrb {
+    border-left: #808080 1px solid;
+    border-right: #808080 1px solid;
+    border-bottom: #808080 1px solid;
+    padding: 0px 15px 0px 15px;
+    margin: 0px;
+    vertical-align: middle;
+}
+
+.tr7 {
+    height: 40px;
+}
+
+.tr14 {
+    height: 60px;
+}
+
+.tr13{
+    height: 90px;
+}
+
+.ft0 {
+    font: bold 24px 'Calibri';
+}
+
+.ft7 {
+    font: bold 16px 'Calibri';
+    line-height: 19px;
+}
+
+.ft16 {
+    font: italic bold 16px 'Times New Roman';
+}
+
+.ft17 {
+    font: bold 21px 'Arial';
+}
+
+.p8 {
+    text-align: left;
+    padding-left: 92px;
+    margin-top: 16px;
+    margin-bottom: 0px;
+}
+
+.p9 {
+    text-align: left;
+    padding-left: 92px;
+    margin-top: 4px;
+    margin-bottom: 0px;
+}
+
+.p21{text-align: left;padding-left: 60px;padding-right: 100px;margin-top: 15px;margin-bottom: 0px;}
+
+.ft9{font: 15px 'Times New Roman';line-height: 17px;}
+.ft14{font: bold 15px 'Times New Roman';line-height: 17px;}
+.ft18{font: italic 13px 'Arial';}
+
+</STYLE>
+</HEAD>
+
+<BODY>
+
+<table style="width: 700px;" cellspacing="0" cellpadding="0" class="table" >
+<tbody>
+<tr>
+<td style="width: 300px; text-align: center;">
+<img src="{{logourl}}" alt="sitelogo">
+<br>
+</td>
+<td style="width: 120px;">&nbsp;</td>
+<td colspan=2 style="text-align: center;"><P class="ft0">Invoice for Services</P></td>
+</tr>
+<tr>
+<td style="width: 300px; text-align: center;">{{{companyname}}}</td>
+<td style="width: 120px;">&nbsp;</td>
+<td style="width: 130px; text-align: center;" class="tdbdr"><strong>Date</strong></td>
+<td style="width: 130px; text-align: center;" class="tdbdr"><strong>Invoice #</strong></td>
+
+<tr>
+<td style="width: 300px; text-align: center;">{{{companyaddress}}}</td>
+<td style="width: 120px;">&nbsp;</td>
+<td style="width: 130px; text-align: center;" class="tdbdr">{{#userdate}} {{created}}, {{#str}} strftimedate {{/str}} {{/userdate}}</td>
+<td style="width: 130px; text-align: center;" class="tdbdr">{{invoiceid}}</td>
+</tr>
+</tbody>
+</table>
+
+<div style="height: 10px"></div>
+<div>
+<P class="p8 ft7">Name:</P>
+<P class="p9 ft8">{{firstname}} {{lastname}}</P>
+</div>
+<div style="height: 40px"></div>
+
+<table style="width: 720px;" cellspacing="0" cellpadding="0" class="table">
+<tbody>
+<tr>
+<td style="padding-left: 15px; vertical-align: middle;" colspan="4" class="tr7 tdbdr"><strong>Registration Number:</strong> <span class="ft9">{{invoiceid}}</span></td>
+</tr>
+<tr>
+<td style="width: 360px; text-align: center; vertical-align: middle;" class="tr7 tdbdr"><strong>Description</strong></td>
+<td style="width: 60px; text-align: center; vertical-align: middle;" class="tr7 tdbdr"><strong>Quantity</strong></td>
+<td style="width: 60px; text-align: center; vertical-align: middle;" class="tr7 tdbdr"><strong>Rate</strong></td>
+<td style="width: 60px; text-align: center; vertical-align: middle;" class="tr7 tdbdr"><strong>Amount</strong></td>
+</tr>
+<tr>
+<td style="width: 360px;" class="tr14 tdlr">{{item_name}}</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">{{quantity}}</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">{{subscription}}&nbsp;</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">{{cost}}&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 360px;" class="tr14 tdlr">&nbsp;</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">GST/HST</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">{{tax_percent}}%</td>
+<td style="width: 60px; text-align: right;" class="tr14 tdlr">{{tax}}</td>
+</tr>
+<tr>
+<td style="width: 360px; text-align: center;" class="tr14 tdlr"><span style="text-decoration: underline;"><strong>NO PAYMENT REQUIRED</strong></span><br /><span style="text-decoration: underline;"><strong>PAID IN FULL</strong></span></td>
+<td style="width: 60px;" class="tr14 tdlr">&nbsp;</td>
+<td style="width: 60px;" class="tr14 tdlr">&nbsp;</td>
+<td style="width: 60px;" class="tr14 tdlr">&nbsp;</td>
+</tr>
+<tr>
+<td style="width: 360px;" class="tr13 tdlrb"><strong><span class="ft14">GST/HST: </span></strong>{{hstnumber}}</td>
+<td style="width: 60px;" class="tr13 tdlrb">&nbsp;</td>
+<td style="width: 60px;" class="tr13 tdlrb">&nbsp;</td>
+<td style="width: 60px;" class="tr13 tdlrb">&nbsp;</td>
+</tr>
+</tbody>
+</table>
+
+<div style="height: 5px"></div>
+
+<table style="width: 600px;" class="table">
+<tbody>
+<tr>
+<td style="width: 360px;  vertical-align: middle; padding: 0px 15px 0px 15px;" class="tr14 tdbdr ft16"><em><strong>{{{companyname}}}</strong></em></td>
+<td style="width: 90px; text-align: center; vertical-align: middle; padding: 0px 15px 0px 15px;" class="tr14 tdbdr ft17"><strong>Total</strong></td>
+<td style="width: 90px; text-align: center; vertical-align: middle; padding: 0px 15px 0px 15px;" class="tr14 tdbdr ft17"><strong>{{total}}</strong></td>
+</tr>
+</tbody>
+</table>
+
+<div style="height: 10px"></div>
+<P class="p21 ft18">*Please remit payment by personal cheque, money order, bank draft, Visa, Mastercard, Discovery or <NOBR>E-mail</NOBR> money transfer to the name and address above. Payments must be made within 15 days from date of invoice. Overdue balances are subject to interest at the rate of 5% per month.</P>
+<div width="100%" style="margin-top: 20px; padding-left: 60px;padding-right: 60px;">{{{invoicefooter}}}</div>
+
+</BODY>
+</HTML>
