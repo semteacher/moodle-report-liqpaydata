@@ -112,7 +112,7 @@ if (isset($invoiceid)&&isset($invoicetype)){
             'hstnumber'         =>get_config('report_liqpaydata', 'invhstnumber'), 
             'invoicefooter'     =>get_config('report_liqpaydata', 'invoicefooter'), 
             'created'           =>$data->timeupdated, 
-            'invoiceid'         =>$data->esid, 
+            'invoiceid'         =>$data->elid, 
             'item_name'         =>$data->item_name, 
             'subscription'      =>$subscription_name, 
             'quantity'          =>$data->quantity, 
