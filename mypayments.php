@@ -64,7 +64,8 @@ if (isset($courseid)&&isset($suspendenrollment)){
     if (is_enrolled($coursecontext, $userid, '', true)) {
         //\enrol_stripe\purchase::setStripeStudentEnrollmentState($courseid, $userid, ENROL_USER_SUSPENDED);
         // Check if courrse contacts cache needs to be cleared.
-        core_course_category::user_enrolment_changed($courseid, $userid, ENROL_USER_SUSPENDED);
+        \enrol_liqpay\util::update_user_enrolmen($courseid, $userid, $suspendenrollment);
+        //core_course_category::user_enrolment_changed($courseid, $userid, ENROL_USER_SUSPENDED);
         if (!is_enrolled($coursecontext, $userid, '', true)) {
             \core\notification::info('Student\'s enrollment in course ' . $course->fullname . ' for user ' .  fullname($user) . ' has been suspended succesfully');
         } else {

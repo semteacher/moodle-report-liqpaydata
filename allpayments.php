@@ -36,9 +36,8 @@ $showpage = optional_param('page', 0, PARAM_INT);
 $paymenttypeid = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
 $userid = optional_param('userid', $USER->id, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
-$enrolstripeid = optional_param('enrolstripeid', null, PARAM_INT);
 $courseid = optional_param('courseid', null, PARAM_INT);
-$suspendenrollment = optional_param('suspendenrollment', null, PARAM_INT);
+$enrolmentstatuschange = optional_param('enrolmentstatuschange', null, PARAM_INT);
 
 //$url = new moodle_url('/report/liqpaydata/allpayments.php', array('paymenttypeid'=>$paymenttypeid));
 $url = new moodle_url('/report/liqpaydata/allpayments.php', array());
@@ -58,17 +57,14 @@ if (!$user || !core_user::is_real_user($userid)) {
 require_capability('moodle/user:update', $context);
 
 //Action - suspend user's enrolment
-if (isset($courseid)&&isset($suspendenrollment)){
+if (isset($courseid)&&isset($enrolmentstatuschange)){
     $course = get_course($courseid);
     $coursecontext = \context_course::instance($courseid);
-    if (is_enrolled($coursecontext, $userid, '', true)) {
-        //\enrol_stripe\purchase::setStripeStudentEnrollmentState($courseid, $userid, ENROL_USER_SUSPENDED);
-        // Check if courrse contacts cache needs to be cleared.
-        core_course_category::user_enrolment_changed($courseid, $userid, ENROL_USER_SUSPENDED);
-        if (!is_enrolled($coursecontext, $userid, '', true)) {
-            \core\notification::info('Student\'s enrollment in course ' . $course->fullname . ' for user ' .  fullname($user) . ' has been suspended succesfully');
+    if (is_enrolled($coursecontext, $userid, '')) {
+        if (\enrol_liqpay\util::update_user_enrolmen($courseid, $userid, $enrolmentstatuschange)) {
+            \core\notification::info('Student\'s enrollment status in course ' . $course->fullname . ' for user ' .  fullname($user) . ' has been changed succesfully');            
         } else {
-            \core\notification::error('Failed to suspend student\'s enrollment in course ' . $course->fullname . ' for user ' .  fullname($user));
+            \core\notification::error('Failed to change of student\'s enrollment in course ' . $course->fullname . ' for user ' .  fullname($user));            
         }
     }
 }
@@ -77,7 +73,7 @@ if (isset($courseid)&&isset($suspendenrollment)){
 $table = new report_mypayments('report_allpayments', true);
 
 //list of fields to retreive
-$fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code';
+$fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';
 $from  = "{enrol_liqpay} el";
 
 //prepare for filtering by paymet type
@@ -127,7 +123,6 @@ if ( !$table->is_downloading()) {
     echo '<div>';
     echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
     echo html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
-    //echo html_writer::select($displaylist, 'paymenttypeid', $paymenttypeid, array('0' => 'choosedots'), array('id' => 'paymenttypeselect'));
     echo html_writer::select($displaylist, 'paymenttypeid', $paymenttypeid, array(), array('id' => 'paymenttypeselect'));
     echo '<noscript style="display:inline">';
     echo '<div><input type="submit" value="'.get_string('ok').'" /></div>';

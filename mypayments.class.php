@@ -120,33 +120,29 @@ class report_mypayments extends table_sql
     //manage enroll_satus
     function col_enroll_satus($row) 
     {
-        //$subscrtext = \enrol_stripe\purchase::getFormattedSubcriptionTermName($row);
-        //$subscrstatus = \enrol_stripe\purchase::getLocalSubcriptionStatus($row);
-        //$ismanager = \enrol_stripe\purchase::hasUnenrolCapability($row->courseid);
-        $subscrtext = "TODO";
-        $subscrstatus = "TODO";
-        $ismanager = "TODO";
-        //if ($row->installment > 0 || $row->subscription > 0){
-            if ($subscrstatus) {
-                //$subscrtext .= ' - Charged';
-                //if ($ismanager) {
-                //    $cancelurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'enrolstripeid' => $row->esid, 'courseid' => $row->courseid, 'cancelcharge'=> 1));
-                //    $subscrtext .= '<br><a href="' . $cancelurl . '">Cancel</a>';
-                //}
-            } else {
-                $coursecontext = \context_course::instance($row->courseid);
-                if (is_enrolled($coursecontext, $row->userid, '', true)) {
-                //    $subscrtext .= ' - Canceled';
-                //    if ($ismanager) {
-                //        $suspendurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'enrolstripeid' => $row->esid, 'courseid' => $row->courseid, 'suspendenrollment'=> 1));
-                //        $subscrtext .= '<br><a href="' . $suspendurl . '">Suspend enrollment</a>';
-                //    }                    
-                } else {
-                //    $subscrtext .= ' - Canceled, suspended';
-                }
+        $coursecontext = \context_course::instance($row->courseid);
+        if (is_enrolled($coursecontext, $row->userid, '', true) && isset($row->userenrollmentid)) {
+            $subscrtext = '<strong>Active</strong>';
 
+            if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
+                $suspendurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
+                $subscrtext .= '<br><a href="' . $suspendurl . '">(Suspend)</a>';
+            }                 
+        } elseif (is_enrolled($coursecontext, $row->userid, '', false) && isset($row->userenrollmentid)) {
+            $subscrtext = '<strong>Suspended</strong>';
+
+            if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
+                $suspendurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
+                $subscrtext .= '<br><a href="' . $suspendurl . '">(Activate)</a>';
+            }                  
+        } else {
+            if(isset($row->userenrollmentid) || $row->payment_status == 'success') {
+                $subscrtext = 'Unenroled';
+            } else {
+                $subscrtext = 'N/a';
             }
-        //}
+        }
+
         return $subscrtext;
     }
 }
