@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of the customcert module for Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,15 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Users' LiqPay Payments.
  *
- * @package     report_liqpaydata
- * @copyright   Semenets A.V.
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    report_liqpaydata
+ * @copyright  2020 Andrii Sements
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die('Direct access to this script is forbidden.');
 
-$plugin->component = 'report_liqpaydata';
-$plugin->version = 2020012001;
-$plugin->requires = 2016052300;
+define('PAYMENTS_ALL',          1);
+define('PAYMENTS_ONETIME',      2);
+define('PAYMENTS_SUBSCRIPTION', 3);
+define('REPORT_PER_USER',    '/report/liqpaydata/mypayments.php');
+define('REPORT_ALL',         '/report/liqpaydata/allpayments.php');

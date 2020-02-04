@@ -21,9 +21,12 @@
  * @copyright  2018 Andrii Sements - LearnFormulaFMCorz
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+//namespace report_liqpaydata;
  
 require('../../config.php');
-require_once($CFG->dirroot . '/report/liqpaydata/mypayments.class.php');
+//require_once($CFG->dirroot . '/report/liqpaydata/mypayments.class.php');
+require_once($CFG->dirroot . '/report/liqpaydata/locallib.php');
 
 global $DB, $CFG;
 
@@ -40,8 +43,8 @@ $courseid = optional_param('courseid', null, PARAM_INT);
 $enrolmentstatuschange = optional_param('enrolmentstatuschange', null, PARAM_INT);
 
 //$url = new moodle_url('/report/liqpaydata/allpayments.php', array('paymenttypeid'=>$paymenttypeid));
-$url = new moodle_url('/report/liqpaydata/allpayments.php', array());
-$context = context_system::instance();
+$url = new \moodle_url('/report/liqpaydata/allpayments.php', array());
+$context = \context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
@@ -50,8 +53,8 @@ $PAGE->set_heading(get_string('allpayments', 'report_liqpaydata'));
 
 // Check that the user is a valid user.
 $user = \core_user::get_user($userid);
-if (!$user || !core_user::is_real_user($userid)) {
-    throw new moodle_exception('invaliduser', 'error');
+if (!$user || !(\core_user::is_real_user($userid))) {
+    throw new \moodle_exception('invaliduser', 'error');
 }
 //required at list site-wide manager role to access
 require_capability('moodle/user:update', $context);
@@ -70,7 +73,7 @@ if (isset($courseid)&&isset($enrolmentstatuschange)){
 }
 
 //prepare table data
-$table = new report_mypayments('report_allpayments', true);
+$table = new \report_liqpaydata\table\mypayments('report_allpayments', true);
 
 //list of fields to retreive
 $fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';

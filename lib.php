@@ -18,7 +18,7 @@
  * Users' LiqPay Payments.
  *
  * @package    report_liqpaydata
- * @copyright  2018 Andrii Sements - LearnFormulaFMCorz
+ * @copyright  2020 Andrii Sements
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

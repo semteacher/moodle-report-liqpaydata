@@ -22,20 +22,17 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace report_liqpaydata\table;
+
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/tablelib.php');
-
-define('PAYMENTS_ALL',          1);
-define('PAYMENTS_ONETIME',      2);
-define('PAYMENTS_SUBSCRIPTION', 3);
-define('REPORT_PER_USER',    '/report/liqpaydata/mypayments.php');
-define('REPORT_ALL',         '/report/liqpaydata/allpayments.php');
+require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->dirroot . '/report/liqpaydata/locallib.php');
 
 //table calss definition
-class report_mypayments extends table_sql
+class mypayments extends \table_sql
 {
-    
+
     private $show_all_users = false;
     private $report_filename = REPORT_PER_USER;
     
@@ -50,12 +47,14 @@ class report_mypayments extends table_sql
             'timeupdated'      => 'Enrolment date', 
             'enroll_satus'     => 'Enroll status', 
             'item_name'        => 'Course',
-            'amount'           => 'Price',
             'payment_type'     => 'Payment Type',
             'amount_debit'     => 'User payed',
             'commission_debit' => 'User\'s comission',
+            'currency_debit'   => 'User\'s currency',
+            'amount'           => 'Price',
             'commission_credit'=> 'Receiver\'s comission',
             'amount_credit'    => 'Received',
+            'currency_credit'  => 'Currency',
             'payment_status'   => 'Payment Status',
             'err_code'         => 'Error Code',
             'liqpay_order_id'  => 'Liqpay order'
@@ -71,11 +70,16 @@ class report_mypayments extends table_sql
     function col_userid($row)
     {
         $user = \core_user::get_user($row->userid);
-        if (!$user || !core_user::is_real_user($row->userid)) {
-            throw new moodle_exception('invaliduser', 'error');
+        if (!$user || !\core_user::is_real_user($row->userid)) {
+            throw new \moodle_exception('invaliduser', 'error');
         }
-        $userurl = new moodle_url(REPORT_PER_USER, array('userid' => $row->userid));
-        return '<a href="' . $userurl . '">' . fullname($user) . '</a>';
+        if (!$this->is_downloading()){
+            $userurl = new \moodle_url(REPORT_PER_USER, array('userid' => $row->userid));
+            return '<a href="' . $userurl . '">' . fullname($user) . '</a>';
+        } else {
+            return fullname($user);
+        }
+
     }
 
     function col_timeupdated($row)
@@ -86,33 +90,33 @@ class report_mypayments extends table_sql
     // price + currency
     function col_amount($row) 
     {
-        return strval($row->amount) .' '. strtoupper($row->currency);
+        return strval($row->amount);
     }
     function col_amount_debit($row) 
     {
-        return strval($row->amount_debit) .' '. strtoupper($row->currency_debit);
+        return strval($row->amount_debit);
     }
     function col_commission_debit($row) 
     {
-        return strval($row->commission_debit) .' '. strtoupper($row->currency_debit);
+        return strval($row->commission_debit);
     }
     function col_amount_credit($row) 
     {
-        return strval($row->amount_credit - $row->commission_credit) .' '. strtoupper($row->currency_credit);
+        return strval($row->amount_credit - $row->commission_credit);
     }
     function col_commission_credit($row) 
     {
-        return strval($row->commission_credit) .' '. strtoupper($row->currency_credit);
+        return strval($row->commission_credit);
     }
 
     //Make "course name" a link
     function col_item_name($row) 
     {
-        if ( ! $this->is_downloading()) {
-            return '<a href="' . new moodle_url('/course/view.php',
+        if ( !$this->is_downloading()) {
+            return '<a href="' . new \moodle_url('/course/view.php',
                     ['id' => $row->courseid]) . '">' . $row->item_name . '</a>';
         } else {
-            $row->item_name;
+            return $row->item_name;
         }
     }
 
@@ -121,19 +125,21 @@ class report_mypayments extends table_sql
     {
         $coursecontext = \context_course::instance($row->courseid);
         if (is_enrolled($coursecontext, $row->userid, '', true) && isset($row->userenrollmentid)) {
-            $subscrtext = '<strong>Active</strong>';
-
-            if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
-                $suspendurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
-                $subscrtext .= '<br><a href="' . $suspendurl . '">(Suspend)</a>';
-            }                 
+            if (!$this->is_downloading()) {
+                $subscrtext = '<strong>Active</strong>';
+                if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
+                    $suspendurl = new \moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
+                    $subscrtext .= '<br><a href="' . $suspendurl . '">(Suspend)</a>';
+                }
+            } else {
+                $subscrtext = 'Active';
+            }
         } elseif (is_enrolled($coursecontext, $row->userid, '', false) && isset($row->userenrollmentid)) {
-            $subscrtext = '<strong>Suspended</strong>';
-
-            if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
-                $suspendurl = new moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
+            $subscrtext = 'Suspended';
+            if (!$this->is_downloading() && has_capability('enrol/liqpay:unenrol', $coursecontext)) {
+                $suspendurl = new \moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
                 $subscrtext .= '<br><a href="' . $suspendurl . '">(Activate)</a>';
-            }                  
+            }
         } else {
             if(isset($row->userenrollmentid) || $row->payment_status == 'success') {
                 $subscrtext = 'Unenroled';
