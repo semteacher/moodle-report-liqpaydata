@@ -44,3 +44,17 @@ function report_liqpaydata_myprofile_navigation(core_user\output\myprofile\tree 
         get_string('profilepayments', 'report_liqpaydata'), null, $url);
     $tree->add_node($node);
 }
+
+/**
+ * This function extends the navigation with the report items
+ *
+ * @param navigation_node $navigation The navigation node to extend
+ * @param stdClass $course The course to object for the report
+ * @param stdClass $context The context of the course
+ */
+function report_liqpaydata_extend_navigation_course($navigation, $course, $context) {
+    if (has_capability('report/log:view', $context)) {
+        $url = new moodle_url('/report/liqpaydata/allpayments.php', array('courseid'=>$course->id));
+        $navigation->add(get_string('pluginname', 'report_liqpaydata'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
+    }
+}

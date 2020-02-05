@@ -25,5 +25,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'report_liqpaydata';
-$plugin->version = 2020012001;
+$plugin->version = 2020012002;
 $plugin->requires = 2016052300;

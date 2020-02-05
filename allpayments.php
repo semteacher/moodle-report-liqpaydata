@@ -42,7 +42,15 @@ $enrolmentstatuschange = optional_param('enrolmentstatuschange', null, PARAM_INT
 
 //$url = new moodle_url('/report/liqpaydata/allpayments.php', array('paymenttypeid'=>$paymenttypeid));
 $url = new \moodle_url('/report/liqpaydata/allpayments.php', array());
-$context = \context_system::instance();
+
+if (!isset($courseid)) {
+    $context = \context_system::instance();
+} else {
+    $context = \context_course::instance($courseid);
+    //$course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
+    $course = \get_course($courseid);
+    $PAGE->set_course($course);
+}
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
@@ -56,7 +64,11 @@ if (!$user || !(\core_user::is_real_user($userid))) {
     throw new \moodle_exception('invaliduser', 'error');
 }
 //required at list site-wide manager role to access
-require_capability('moodle/user:update', $context);
+if (!isset($courseid)) {
+    require_capability('moodle/site:configview', $context);
+} else {
+    require_capability('moodle/user:update', $context);
+}
 
 //Action - suspend user's enrolment
 if (isset($courseid)&&isset($enrolmentstatuschange)){
