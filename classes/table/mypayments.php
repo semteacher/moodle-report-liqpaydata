@@ -36,7 +36,7 @@ class mypayments extends \table_sql
     private $show_all_users = false;
     private $report_filename = REPORT_PER_USER;
     
-    function __construct($uniqueid, $showallusers=false)
+    function __construct($uniqueid, $showallusers=false, $paymenttypeid)
     {
         parent::__construct($uniqueid);
         $this->show_all_users = $showallusers;
@@ -65,6 +65,24 @@ class mypayments extends \table_sql
         }
         $this->define_columns(array_keys($columns));
         $this->define_headers(array_values($columns));
+
+        //list of fields to retreive
+        $fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';
+        $from  = "{enrol_liqpay} el";
+
+        //prepare for filtering by paymet type
+        if ($paymenttypeid == PAYMENTS_SUBSCRIPTION) {
+            $wherepaymenttype = " and el.payment_type = 'subscribe' ";
+        } elseif ($paymenttypeid == PAYMENTS_ONETIME) {
+            $wherepaymenttype = " and el.payment_type = 'buy' ";
+        } else {
+            $wherepaymenttype = "";  //show all
+        }
+
+        $where      = "el.userid > 0" . $wherepaymenttype;
+
+        $this->set_count_sql("SELECT COUNT(DISTINCT(el.id)) FROM {$from} WHERE {$where}", array());
+        $this->set_sql($fields, $from, $where, array());
     }
 
     function col_userid($row)
@@ -149,5 +167,17 @@ class mypayments extends \table_sql
         }
 
         return $subscrtext;
+    }
+
+    function liqpay_totals()
+    {
+        global $DB;
+
+        return $DB->get_record_sql("
+            SELECT COUNT(el.id) AS cnt, SUM(el.amount_credit) AS payment_gross, MAX(el.currency_credit) AS currency, 
+                    SUM(el.commission_credit) AS commission 
+            FROM {$this->sql->from}
+            WHERE (el.payment_status = 'success') and {$this->sql->where} 
+                                      ", $this->sql->params);
     }
 }

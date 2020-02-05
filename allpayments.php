@@ -21,8 +21,6 @@
  * @copyright  2018 Andrii Sements - LearnFormulaFMCorz
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-//namespace report_liqpaydata;
  
 require('../../config.php');
 //require_once($CFG->dirroot . '/report/liqpaydata/mypayments.class.php');
@@ -50,6 +48,7 @@ $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
 $PAGE->set_title(get_string('allpayments', 'report_liqpaydata'));
 $PAGE->set_heading(get_string('allpayments', 'report_liqpaydata'));
+$PAGE->navbar->add(get_string('allpayments', 'report_liqpaydata'), $url);
 
 // Check that the user is a valid user.
 $user = \core_user::get_user($userid);
@@ -67,53 +66,25 @@ if (isset($courseid)&&isset($enrolmentstatuschange)){
         if (\enrol_liqpay\util::update_user_enrolmen($courseid, $userid, $enrolmentstatuschange)) {
             \core\notification::info('Student\'s enrollment status in course ' . $course->fullname . ' for user ' .  fullname($user) . ' has been changed succesfully');            
         } else {
-            \core\notification::error('Failed to change of student\'s enrollment in course ' . $course->fullname . ' for user ' .  fullname($user));            
+            \core\notification::error('Failed to change of student\'s enrollment in course ' . $course->fullname . ' for user ' . fullname($user));            
         }
     }
 }
 
 //prepare table data
-$table = new \report_liqpaydata\table\mypayments('report_allpayments', true);
-
-//list of fields to retreive
-$fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';
-$from  = "{enrol_liqpay} el";
+$table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid);
 
 //prepare for filtering by paymet type
 $displaylist = array(
-                        PAYMENTS_ALL=>'All', 
-                        PAYMENTS_ONETIME=>'One time payments', 
-                        PAYMENTS_SUBSCRIPTION=>'Subscriptions'
-                        );
-if ($paymenttypeid == PAYMENTS_SUBSCRIPTION) {
-    $wherepaymenttype = " and el.payment_type = 'subscribe' ";
-} elseif ($paymenttypeid == PAYMENTS_ONETIME) {
-    $wherepaymenttype = " and el.payment_type = 'buy' ";
-} else {
-    $wherepaymenttype = "";  //show all
-}
+                    PAYMENTS_ALL=>'All', 
+                    PAYMENTS_ONETIME=>'One time payments', 
+                    PAYMENTS_SUBSCRIPTION=>'Subscriptions'
+                    );
 
-$where      = "el.userid > 0" . $wherepaymenttype;
-$whereGroup = $where;
-$params     = array();
-
-$table->set_count_sql("SELECT COUNT(DISTINCT(el.id)) FROM {$from} WHERE {$where}", $params);
-$table->set_sql($fields, $from, $whereGroup, $params);
 $table->define_baseurl($PAGE->url);
-
-$wheresuccesstotal = "(el.payment_status = 'success') and " . $where;
-$totals = $DB->get_record_sql("
-SELECT COUNT(el.id) AS cnt, SUM(el.amount_credit) AS payment_gross, MAX(el.currency_credit) AS currency, SUM(el.commission_credit) AS commission 
-FROM {$from}
-WHERE {$wheresuccesstotal} 
-                              ", $params);
-//$totals = $DB->get_record_sql("
-//SELECT COUNT(q1.id) AS cnt, SUM(q1.payment_gross) AS payment_gross, MAX(q1.currency_credit)  AS currency_credit 
-//FROM 
-//    (SELECT el.id, el.amount_credit, el.currency_credit, IF(el.subscription>0, el.payment_gross*el.alreadyruns, //el.payment_gross) AS payment_gross FROM $from WHERE $wheresuccesstotal) AS q1
-//                              ", $params);
-
 $table->is_downloading($download, "all-users-$displaylist[$paymenttypeid]-payments");                               
+
+$totals = $table->liqpay_totals();
 
 //display or download table
 if ( !$table->is_downloading()) {
