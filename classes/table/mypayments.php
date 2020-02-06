@@ -36,10 +36,12 @@ class mypayments extends \table_sql
     private $show_all_users = false;
     private $report_filename = REPORT_PER_USER;
     
-    function __construct($uniqueid, $showallusers=false, $paymenttypeid)
+    function __construct($uniqueid, $showallusers=false, $paymenttypeid=PAYMENTS_ALL, $courseid=null)
     {
         parent::__construct($uniqueid);
         $this->show_all_users = $showallusers;
+        $this->paymenttypeid = $paymenttypeid;
+        $this->courseid = $courseid;
         $this->sort_default_column = 'timeupdated';
         $this->sort_default_order  = SORT_DESC;
 
@@ -84,7 +86,7 @@ class mypayments extends \table_sql
         $this->set_count_sql("SELECT COUNT(DISTINCT(el.id)) FROM {$from} WHERE {$where}", array());
         $this->set_sql($fields, $from, $where, array());
 
-        $this->no_sorting('enroll_satus');
+        $this->no_sorting('enroll_satus'); // force to avoid errors on sorting!
     }
 
     function col_userid($row)
@@ -148,7 +150,7 @@ class mypayments extends \table_sql
             if (!$this->is_downloading()) {
                 $subscrtext = '<strong>Active</strong>';
                 if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
-                    $suspendurl = new \moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
+                    $suspendurl = new \moodle_url($this->baseurl, array('enroluserid' => $row->userid, 'enrolcourseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
                     $subscrtext .= '<br><a href="' . $suspendurl . '">(Suspend)</a>';
                 }
             } else {
@@ -157,7 +159,7 @@ class mypayments extends \table_sql
         } elseif (is_enrolled($coursecontext, $row->userid, '', false) && isset($row->userenrollmentid)) {
             $subscrtext = 'Suspended';
             if (!$this->is_downloading() && has_capability('enrol/liqpay:unenrol', $coursecontext)) {
-                $suspendurl = new \moodle_url($this->report_filename, array('userid' => $row->userid, 'courseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
+                $suspendurl = new \moodle_url($this->baseurl, array('enroluserid' => $row->userid, 'enrolcourseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
                 $subscrtext .= '<br><a href="' . $suspendurl . '">(Activate)</a>';
             }
         } else {
@@ -190,5 +192,29 @@ class mypayments extends \table_sql
                     PAYMENTS_ONETIME=>'One time payments', 
                     PAYMENTS_SUBSCRIPTION=>'Subscriptions'
                     );
+    }
+    
+    function out_filter_form()
+    {
+        global $PAGE;
+
+    echo '<form action="'.s($this->baseurl->out(false)).'" method="get" id="paymentsfilterform">';
+    echo '<div>';
+    if (isset($this->courseid)){
+        echo '<input type="hidden" name="courseid" value="'.$this->courseid.'" />';
+    }
+    echo \html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
+    echo \html_writer::select($this->get_payment_option_names(), 'paymenttypeid', $this->paymenttypeid, array(), array('id' => 'paymenttypeselect'));
+    echo '<noscript style="display:inline">';
+    echo '<div><input type="submit" value="'.\get_string('ok').'" /></div>';
+    echo '</noscript>';
+    echo '</div>';
+    echo '</form>';
+    $PAGE->requires->js_amd_inline("
+        require(['jquery'], function($) {
+            $('#paymenttypeselect').change(function(e) {
+                $('form#paymentsfilterform').submit();
+            });
+        });");
     }
 }

@@ -23,38 +23,38 @@
  */
  
 require('../../config.php');
-//require_once($CFG->dirroot . '/report/liqpaydata/mypayments.class.php');
 require_once($CFG->dirroot . '/report/liqpaydata/locallib.php');
 
-global $DB, $CFG;
-
 require_login(null, false);
+
 if (isguestuser()) {
     throw new require_login_exception('Guests are not allowed here.');
 }
 
 $paymenttypeid          = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
-$userid                 = optional_param('userid', $USER->id, PARAM_INT);
+$enroluserid            = optional_param('enroluserid', $USER->id, PARAM_INT);
 $download               = optional_param('download', '', PARAM_ALPHA);
 $courseid               = optional_param('courseid', null, PARAM_INT);
+$enrolcourseid          = optional_param('enrolcourseid', null, PARAM_INT);
 $enrolmentstatuschange  = optional_param('enrolmentstatuschange', null, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
 $perpage                = optional_param('perpage', 3, PARAM_INT); // How many per page.
 
+// create page url
 $params = array('paymenttypeid'=>$paymenttypeid);
 if (!empty($showpage)) {
     $params = array_merge($params, array('page'=>$showpage, 'perpage'=>$perpage));
 }
-$url = new \moodle_url('/report/liqpaydata/allpayments.php', $params);
-
 if (!isset($courseid)) {
     $context = \context_system::instance();
 } else {
     $context = \context_course::instance($courseid);
-    //$course = $DB->get_record('course', array('id'=>$courseid), '*', MUST_EXIST);
     $course = \get_course($courseid);
+    $params = array_merge($params, array('courseid'=>$courseid));
     $PAGE->set_course($course);
 }
+$url = new \moodle_url('/report/liqpaydata/allpayments.php', $params);
+
 $PAGE->set_context($context);
 $PAGE->set_url($url);
 $PAGE->set_pagelayout('report');
@@ -62,11 +62,6 @@ $PAGE->set_title(get_string('allpayments', 'report_liqpaydata'));
 $PAGE->set_heading(get_string('allpayments', 'report_liqpaydata'));
 $PAGE->navbar->add(get_string('allpayments', 'report_liqpaydata'), $url);
 
-// Check that the user is a valid user.
-$user = \core_user::get_user($userid);
-if (!$user || !(\core_user::is_real_user($userid))) {
-    throw new \moodle_exception('invaliduser', 'error');
-}
 //required at list site-wide manager role to access
 if (!isset($courseid)) {
     require_capability('report/liqpaydata:siteview', $context);
@@ -75,27 +70,25 @@ if (!isset($courseid)) {
 }
 
 //Action - suspend user's enrolment
-if (isset($courseid)&&isset($enrolmentstatuschange)){
-    $course = get_course($courseid);
-    $coursecontext = \context_course::instance($courseid);
-    if (is_enrolled($coursecontext, $userid, '')) {
-        if (\enrol_liqpay\util::update_user_enrolmen($courseid, $userid, $enrolmentstatuschange)) {
-            \core\notification::info('Student\'s enrollment status in course ' . $course->fullname . ' for user ' .  fullname($user) . ' has been changed succesfully');            
+if (isset($enrolcourseid)&&isset($enrolmentstatuschange)){
+    $enrolcourse = get_course($enrolcourseid);
+    $coursecontext = \context_course::instance($enrolcourseid);
+    if (is_enrolled($coursecontext, $enroluserid, '')) {
+        $user = \core_user::get_user($enroluserid);
+        if (\enrol_liqpay\util::update_user_enrolmen($enrolcourseid, $enroluserid, $enrolmentstatuschange)) {
+            \core\notification::info('Student\'s enrollment status in course ' . $enrolcourse->fullname . ' for user ' .  fullname($user) . ' has been changed succesfully');            
         } else {
-            \core\notification::error('Failed to change of student\'s enrollment in course ' . $course->fullname . ' for user ' . fullname($user));            
+            \core\notification::error('Failed to change of student\'s enrollment in course ' . $enrolcourse->fullname . ' for user ' . fullname($user));            
         }
     }
 }
 
 //prepare table data
-$table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid);
-
+$table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid, $courseid);
+$table->define_baseurl($PAGE->url);
 //prepare for filtering by paymet type
 $displaylist = $table->get_payment_option_names();
-
-$table->define_baseurl($PAGE->url);
 $table->is_downloading($download, "all-users-$displaylist[$paymenttypeid]-payments");                               
-
 $totals = $table->get_liqpay_success_totals();
 
 //display or download table
@@ -105,21 +98,7 @@ if ( !$table->is_downloading()) {
     echo $OUTPUT->heading("Successfull payments: $totals->cnt, Total amount: $totals->currency $totals->payment_gross", 5);
 
     //payment filter form
-    echo '<form action="'.s($PAGE->url->out(false)).'" method="get" id="paymentsfilterform">';
-    echo '<div>';
-    echo html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
-    echo html_writer::select($displaylist, 'paymenttypeid', $paymenttypeid, array(), array('id' => 'paymenttypeselect'));
-    echo '<noscript style="display:inline">';
-    echo '<div><input type="submit" value="'.get_string('ok').'" /></div>';
-    echo '</noscript>';
-    echo '</div>';
-    echo '</form>';
-    $PAGE->requires->js_amd_inline("
-        require(['jquery'], function($) {
-            $('#paymenttypeselect').change(function(e) {
-                $('form#paymentsfilterform').submit();
-            });
-        });");
+    $table->out_filter_form();
 }
 
 $table->out($perpage, true);
