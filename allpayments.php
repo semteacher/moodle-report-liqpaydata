@@ -33,12 +33,13 @@ if (isguestuser()) {
     throw new require_login_exception('Guests are not allowed here.');
 }
 
-$showpage = optional_param('page', 0, PARAM_INT);
-$paymenttypeid = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
-$userid = optional_param('userid', $USER->id, PARAM_INT);
-$download = optional_param('download', '', PARAM_ALPHA);
-$courseid = optional_param('courseid', null, PARAM_INT);
-$enrolmentstatuschange = optional_param('enrolmentstatuschange', null, PARAM_INT);
+$paymenttypeid          = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
+$userid                 = optional_param('userid', $USER->id, PARAM_INT);
+$download               = optional_param('download', '', PARAM_ALPHA);
+$courseid               = optional_param('courseid', null, PARAM_INT);
+$enrolmentstatuschange  = optional_param('enrolmentstatuschange', null, PARAM_INT);
+$showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
+$perpage                = optional_param('perpage', 20, PARAM_INT); // How many per page.
 
 //$url = new moodle_url('/report/liqpaydata/allpayments.php', array('paymenttypeid'=>$paymenttypeid));
 $url = new \moodle_url('/report/liqpaydata/allpayments.php', array());
@@ -65,9 +66,9 @@ if (!$user || !(\core_user::is_real_user($userid))) {
 }
 //required at list site-wide manager role to access
 if (!isset($courseid)) {
-    require_capability('moodle/site:configview', $context);
+    require_capability('report/liqpaydata:siteview', $context);
 } else {
-    require_capability('moodle/user:update', $context);
+    require_capability('report/liqpaydata:courseview', $context);
 }
 
 //Action - suspend user's enrolment
@@ -123,7 +124,7 @@ if ( !$table->is_downloading()) {
         });");
 }
 
-$table->out(20, true);
+$table->out($perpage, true);
 
 if ( !$table->is_downloading()) {
     echo $OUTPUT->footer(); 

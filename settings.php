@@ -25,9 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig|| has_capability('moodle/site:configview', context_system::instance())) {
-    $url = $CFG->wwwroot . '/report/liqpaydata/allpayments.php';
-    $ADMIN->add('reports', new admin_externalpage('reportallpayments', get_string('allpayments', 'report_liqpaydata'), $url));
-    
+
+    $ADMIN->add('reports', new admin_externalpage('reportallpayments', get_string('allpayments', 'report_liqpaydata'), $CFG->wwwroot . '/report/liqpaydata/allpayments.php', 'report/liqpaydata:siteview'));
+
     if ($ADMIN->fulltree&&($hassiteconfig || has_capability('report/security:view', context_system::instance()))) {
         //$settings = new admin_settingpage('report_liqpaydata', get_string('pluginname', 'report_liqpaydata').': a company\'s data');
         //$ADMIN->add('reportplugins', $settings); //DEBUG: led to unreasonable error 'no parents!'
