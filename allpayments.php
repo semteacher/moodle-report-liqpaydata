@@ -39,10 +39,13 @@ $download               = optional_param('download', '', PARAM_ALPHA);
 $courseid               = optional_param('courseid', null, PARAM_INT);
 $enrolmentstatuschange  = optional_param('enrolmentstatuschange', null, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
-$perpage                = optional_param('perpage', 20, PARAM_INT); // How many per page.
+$perpage                = optional_param('perpage', 3, PARAM_INT); // How many per page.
 
-//$url = new moodle_url('/report/liqpaydata/allpayments.php', array('paymenttypeid'=>$paymenttypeid));
-$url = new \moodle_url('/report/liqpaydata/allpayments.php', array());
+$params = array('paymenttypeid'=>$paymenttypeid);
+if (!empty($showpage)) {
+    $params = array_merge($params, array('page'=>$showpage, 'perpage'=>$perpage));
+}
+$url = new \moodle_url('/report/liqpaydata/allpayments.php', $params);
 
 if (!isset($courseid)) {
     $context = \context_system::instance();
@@ -88,16 +91,12 @@ if (isset($courseid)&&isset($enrolmentstatuschange)){
 $table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid);
 
 //prepare for filtering by paymet type
-$displaylist = array(
-                    PAYMENTS_ALL=>'All', 
-                    PAYMENTS_ONETIME=>'One time payments', 
-                    PAYMENTS_SUBSCRIPTION=>'Subscriptions'
-                    );
+$displaylist = $table->get_payment_option_names();
 
 $table->define_baseurl($PAGE->url);
 $table->is_downloading($download, "all-users-$displaylist[$paymenttypeid]-payments");                               
 
-$totals = $table->liqpay_totals();
+$totals = $table->get_liqpay_success_totals();
 
 //display or download table
 if ( !$table->is_downloading()) {
@@ -106,9 +105,8 @@ if ( !$table->is_downloading()) {
     echo $OUTPUT->heading("Successfull payments: $totals->cnt, Total amount: $totals->currency $totals->payment_gross", 5);
 
     //payment filter form
-    echo '<form action="'.s($PAGE->url->out(false)).'" method="post" id="paymentsfilterform">';
+    echo '<form action="'.s($PAGE->url->out(false)).'" method="get" id="paymentsfilterform">';
     echo '<div>';
-    echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
     echo html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
     echo html_writer::select($displaylist, 'paymenttypeid', $paymenttypeid, array(), array('id' => 'paymenttypeselect'));
     echo '<noscript style="display:inline">';

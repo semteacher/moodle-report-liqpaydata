@@ -83,6 +83,8 @@ class mypayments extends \table_sql
 
         $this->set_count_sql("SELECT COUNT(DISTINCT(el.id)) FROM {$from} WHERE {$where}", array());
         $this->set_sql($fields, $from, $where, array());
+
+        $this->no_sorting('enroll_satus');
     }
 
     function col_userid($row)
@@ -169,7 +171,7 @@ class mypayments extends \table_sql
         return $subscrtext;
     }
 
-    function liqpay_totals()
+    function get_liqpay_success_totals()
     {
         global $DB;
 
@@ -179,5 +181,14 @@ class mypayments extends \table_sql
             FROM {$this->sql->from}
             WHERE (el.payment_status = 'success') and {$this->sql->where} 
                                       ", $this->sql->params);
+    }
+
+    function get_payment_option_names()
+    {
+        return array(
+                    PAYMENTS_ALL=>'All', 
+                    PAYMENTS_ONETIME=>'One time payments', 
+                    PAYMENTS_SUBSCRIPTION=>'Subscriptions'
+                    );
     }
 }
