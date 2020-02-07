@@ -54,7 +54,7 @@ function report_liqpaydata_myprofile_navigation(core_user\output\myprofile\tree 
  */
 function report_liqpaydata_extend_navigation_course($navigation, $course, $context) {
     if (has_capability('report/log:view', $context)) {
-        $url = new moodle_url('/report/liqpaydata/allpayments.php', array('courseid'=>$course->id));
+        $url = new moodle_url('/report/liqpaydata/index.php', array('courseid'=>$course->id));
         $navigation->add(get_string('pluginname', 'report_liqpaydata'), $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/report', ''));
     }
 }

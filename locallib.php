@@ -28,4 +28,4 @@ define('PAYMENTS_ALL',          1);
 define('PAYMENTS_ONETIME',      2);
 define('PAYMENTS_SUBSCRIPTION', 3);
 define('REPORT_PER_USER',    '/report/liqpaydata/mypayments.php');
-define('REPORT_ALL',         '/report/liqpaydata/allpayments.php');
+define('REPORT_ALL',         '/report/liqpaydata/index.php');
