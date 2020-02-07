@@ -36,12 +36,19 @@ class mypayments extends \table_sql
     private $show_all_users = false;
     private $report_filename = REPORT_PER_USER;
     
-    function __construct($uniqueid, $showallusers=false, $paymenttypeid=PAYMENTS_ALL, $courseid=null)
+    function __construct($uniqueid, $showallusers=false, $paymenttypeid=PAYMENTS_ALL, $courseid=null, $userid=null)
     {
+        global $USER;
+
         parent::__construct($uniqueid);
         $this->show_all_users = $showallusers;
         $this->paymenttypeid = $paymenttypeid;
         $this->courseid = $courseid;
+        if (!$showallusers && empty($userid)) {
+            $this->userid = $USER->id;
+        } else {
+            $this->userid = $userid;
+        }
         $this->sort_default_column = 'timeupdated';
         $this->sort_default_order  = SORT_DESC;
 
@@ -80,9 +87,11 @@ class mypayments extends \table_sql
         } else {
             $wherepaymenttype = "";  //show all
         }
-
-        $where      = "el.userid > 0" . $wherepaymenttype;
-
+        if ($this->show_all_users) {
+            $where = "el.userid > 0" . $wherepaymenttype;
+        } else {
+            $where = "el.userid = $this->userid" . $wherepaymenttype;
+        }
         $this->set_count_sql("SELECT COUNT(DISTINCT(el.id)) FROM {$from} WHERE {$where}", array());
         $this->set_sql($fields, $from, $where, array());
 
@@ -202,6 +211,9 @@ class mypayments extends \table_sql
     echo '<div>';
     if (isset($this->courseid)){
         echo '<input type="hidden" name="courseid" value="'.$this->courseid.'" />';
+    }
+    if (isset($this->userid)){
+        echo '<input type="hidden" name="userid" value="'.$this->userid.'" />';
     }
     echo \html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
     echo \html_writer::select($this->get_payment_option_names(), 'paymenttypeid', $this->paymenttypeid, array(), array('id' => 'paymenttypeselect'));
