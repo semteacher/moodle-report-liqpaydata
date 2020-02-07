@@ -38,7 +38,7 @@ function xmldb_report_liqpaydata_upgrade($oldversion) {
     //will be executed on each upgrade - ensure that there is no such user menu item already and add it only once
     $customusermenuitems = $CFG->customusermenuitems;
     $items               = explode(PHP_EOL, $customusermenuitems);
-    $paymentItem         = 'mypayments,report_liqpaydata|/report/payments/mypayments.php|grades';
+    $paymentItem         = 'mypayments,report_liqpaydata|/report/liqpaydata/mypayments.php|grades';
     if (!in_array($paymentItem, $items, TRUE)) {
         $items[]             = $paymentItem;
         $customusermenuitems = implode(PHP_EOL, $items);
