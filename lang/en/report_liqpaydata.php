@@ -29,6 +29,8 @@ $string['pluginname'] = 'LiqPay payments report';
 $string['mypayments'] = 'My LiqPay payments';
 $string['allpayments'] = 'All users\' LiqPay payments';
 $string['profilepayments'] = 'LiqPay payments report';
+$string['liqpaydata:siteview'] = 'LiqPay payments report - sitewide access';
+$string['liqpaydata:courseview'] = 'LiqPay payments report - access in course';
 //report settings
 $string['invcompanyname'] = 'Company name';
 $string['configcompanyname'] = 'Provide company name';
