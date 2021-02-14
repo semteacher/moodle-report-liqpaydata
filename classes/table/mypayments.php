@@ -65,6 +65,7 @@ class mypayments extends \table_sql
             'amount_credit'    => 'Received',
             'currency_credit'  => 'Currency',
             'payment_status'   => 'Payment Status',
+            'payment_id'       => 'Liqpay paymentID',
             'err_code'         => 'Error Code',
             'liqpay_order_id'  => 'Liqpay order'
         );
@@ -76,7 +77,7 @@ class mypayments extends \table_sql
         $this->define_headers(array_values($columns));
 
         //list of fields to retreive
-        $fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';
+        $fields = 'el.id as elid, el.timeupdated, el.courseid, el.item_name, el.amount, el.currency, el.userid, el.payment_type, el.amount_debit, el.currency_debit, el.commission_debit, el.amount_credit, el.currency_credit, el.commission_credit, el.payment_id, el.liqpay_order_id, el.payment_status, el.description,  el.err_code, el.userenrollmentid';
         $from  = "{enrol_liqpay} el";
 
         //prepare for filtering by paymet type
