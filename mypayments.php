@@ -38,7 +38,7 @@ if (isguestuser()) {
 
 $paymenttypeid          = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
-$perpage                = optional_param('perpage', 3, PARAM_INT); // How many per page.
+$perpage                = optional_param('perpage', 10, PARAM_INT); // How many per page.
 $userid                 = optional_param('userid', $USER->id, PARAM_INT);
 $invoiceid = optional_param('invoiceid', null, PARAM_INT);
 $invoicetype = optional_param('invoicetype', null, PARAM_TEXT);
@@ -140,8 +140,8 @@ if (isset($invoiceid)&&isset($invoicetype)){
 //display or download table
 if ( !$table->is_downloading()) {
     echo $OUTPUT->header();
-    echo $OUTPUT->heading('Recorded payments');
-    echo $OUTPUT->heading("Successfull payments: $totals->cnt, Total amount: $totals->currency $totals->payment_gross", 5);
+    echo $OUTPUT->heading(get_string('recordedpayments', 'report_liqpaydata'));
+    echo $OUTPUT->heading(get_string('rpaymentssummary', 'report_liqpaydata', ['count'=>$totals->cnt, 'currency'=>$totals->currency, 'gross'=>$totals->payment_gross ]), 5);
 
     //payment filter form
     $table->out_filter_form();

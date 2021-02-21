@@ -38,7 +38,7 @@ $courseid               = optional_param('courseid', null, PARAM_INT);
 $enrolcourseid          = optional_param('enrolcourseid', null, PARAM_INT);
 $enrolmentstatuschange  = optional_param('enrolmentstatuschange', null, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
-$perpage                = optional_param('perpage', 3, PARAM_INT); // How many per page.
+$perpage                = optional_param('perpage', 10, PARAM_INT); // How many per page.
 
 // create page url
 $params = array('paymenttypeid'=>$paymenttypeid);
@@ -94,8 +94,8 @@ $totals = $table->get_liqpay_success_totals();
 //display or download table
 if ( !$table->is_downloading()) {
     echo $OUTPUT->header();
-    echo $OUTPUT->heading('Recorded payments');
-    echo $OUTPUT->heading("Successfull payments: $totals->cnt, Total amount: $totals->currency $totals->payment_gross", 5);
+    echo $OUTPUT->heading(get_string('recordedpayments', 'report_liqpaydata'));
+    echo $OUTPUT->heading(get_string('rpaymentssummary', 'report_liqpaydata', ['count'=>$totals->cnt, 'currency'=>$totals->currency, 'gross'=>$totals->payment_gross ]), 5);
 
     //payment filter form
     $table->out_filter_form();

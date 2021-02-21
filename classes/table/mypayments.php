@@ -53,24 +53,24 @@ class mypayments extends \table_sql
         $this->sort_default_order  = SORT_DESC;
 
         $columns = array(
-            'timeupdated'      => 'Enrolment date', 
-            'enroll_satus'     => 'Enroll status', 
-            'item_name'        => 'Course',
-            'payment_type'     => 'Payment Type',
-            'amount_debit'     => 'User payed',
-            'commission_debit' => 'User\'s comission',
-            'currency_debit'   => 'User\'s currency',
-            'amount'           => 'Price',
-            'commission_credit'=> 'Receiver\'s comission',
-            'amount_credit'    => 'Received',
-            'currency_credit'  => 'Currency',
-            'payment_status'   => 'Payment Status',
-            'payment_id'       => 'Liqpay paymentID',
-            'err_code'         => 'Error Code',
-            'liqpay_order_id'  => 'Liqpay order'
+            'timeupdated'      => get_string('tcolenroldate', 'report_liqpaydata'), 
+            'enroll_satus'     => get_string('tcolenrolstatus', 'report_liqpaydata'), 
+            'item_name'        => get_string('tcolcourse', 'report_liqpaydata'),
+            'payment_type'     => get_string('tcolpaymenttype', 'report_liqpaydata'),
+            'payment_status'   => get_string('tcolupaymentstatus', 'report_liqpaydata'),
+            'amount_debit'     => get_string('tcolupayed', 'report_liqpaydata'),
+            'commission_debit' => get_string('tcolucomission', 'report_liqpaydata'),
+            'currency_debit'   => get_string('tcolucurrency', 'report_liqpaydata'),
+            'amount'           => get_string('tcolprice', 'report_liqpaydata'),
+            'commission_credit'=> get_string('tcolrcomission', 'report_liqpaydata'),
+            'amount_credit'    => get_string('tcolreceived', 'report_liqpaydata'),
+            'currency_credit'  => get_string('tcolcurrency', 'report_liqpaydata'),
+            'payment_id'       => get_string('tcollpayid', 'report_liqpaydata'),
+            'err_code'         => get_string('tcollerrcode', 'report_liqpaydata'),
+            'liqpay_order_id'  => get_string('tcollorder', 'report_liqpaydata')
         );
         if ($this->show_all_users) {
-            $columns = array_merge(array('userid' => 'User'), $columns);
+            $columns = array_merge(array('userid' => get_string('tcoluser', 'report_liqpaydata')), $columns);
             $this->report_filename = REPORT_ALL;
         }
         $this->define_columns(array_keys($columns));
@@ -158,25 +158,25 @@ class mypayments extends \table_sql
         $coursecontext = \context_course::instance($row->courseid);
         if (is_enrolled($coursecontext, $row->userid, '', true) && isset($row->userenrollmentid)) {
             if (!$this->is_downloading()) {
-                $subscrtext = '<strong>Active</strong>';
+                $subscrtext = '<strong>'.get_string('stactive', 'report_liqpaydata').'</strong>';
                 if (has_capability('enrol/liqpay:unenrol', $coursecontext)) {
                     $suspendurl = new \moodle_url($this->baseurl, array('enroluserid' => $row->userid, 'enrolcourseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_SUSPENDED));
-                    $subscrtext .= '<br><a href="' . $suspendurl . '">(Suspend)</a>';
+                    $subscrtext .= '<br><a href="' . $suspendurl . '">'.get_string('dosuspend', 'report_liqpaydata').'</a>';
                 }
             } else {
-                $subscrtext = 'Active';
+                $subscrtext = get_string('stactive', 'report_liqpaydata');
             }
         } elseif (is_enrolled($coursecontext, $row->userid, '', false) && isset($row->userenrollmentid)) {
-            $subscrtext = 'Suspended';
+            $subscrtext = get_string('stsuspended', 'report_liqpaydata');
             if (!$this->is_downloading() && has_capability('enrol/liqpay:unenrol', $coursecontext)) {
                 $suspendurl = new \moodle_url($this->baseurl, array('enroluserid' => $row->userid, 'enrolcourseid' => $row->courseid, 'enrolmentstatuschange'=> ENROL_USER_ACTIVE));
-                $subscrtext .= '<br><a href="' . $suspendurl . '">(Activate)</a>';
+                $subscrtext .= '<br><a href="' . $suspendurl . '">'.get_string('doactivate', 'report_liqpaydata').'</a>';
             }
         } else {
             if(isset($row->userenrollmentid) || $row->payment_status == 'success') {
-                $subscrtext = 'Unenroled';
+                $subscrtext = get_string('stunenrolled', 'report_liqpaydata');
             } else {
-                $subscrtext = 'N/a';
+                $subscrtext = get_string('stunknown', 'report_liqpaydata');
             }
         }
 
