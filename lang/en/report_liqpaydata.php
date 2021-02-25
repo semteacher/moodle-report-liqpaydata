@@ -32,7 +32,7 @@ $string['profilepayments'] = 'LiqPay payments report';
 $string['liqpaydata:siteview'] = 'LiqPay payments report - sitewide access';
 $string['liqpaydata:courseview'] = 'LiqPay payments report - access in course';
 $string['recordedpayments'] = 'Recorded payments';
-$string['rpaymentssummary'] = 'Successfull payments: {a->count}, Total amount: {$a->currency} {$a->gross}';
+$string['rpaymentssummary'] = 'Successfull payments: {$a->count}, Total amount: {$a->currency} {$a->gross}';
 $string['tcoluser']= 'User';
 $string['tcolenroldate']= 'Enrolment date';
 $string['tcolenrolstatus'] = 'Enroll status';
@@ -55,6 +55,10 @@ $string['stunenrolled'] = 'Unenroled';
 $string['stunknown'] = 'Unknown';
 $string['dosuspend'] = '(Suspend)';
 $string['doactivate'] = '(Activate)';
+$string['displayonetimes'] = 'One time payments';
+$string['displaysubscriptions'] = 'Subscriptions';
+$string['fselectpaymenttype'] = 'Display payments of the following type:&nbsp;';
+$string['fselectperpage'] = 'Display the following number of rows:&nbsp;';
 
 //report settings
 $string['invcompanyname'] = 'Company name';

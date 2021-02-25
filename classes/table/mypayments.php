@@ -36,7 +36,7 @@ class mypayments extends \table_sql
     private $show_all_users = false;
     private $report_filename = REPORT_PER_USER;
     
-    function __construct($uniqueid, $showallusers=false, $paymenttypeid=PAYMENTS_ALL, $courseid=null, $userid=null)
+    function __construct($uniqueid, $showallusers=false, $paymenttypeid=PAYMENTS_ALL, $courseid=null, $userid=null, $pagesize=20)
     {
         global $USER;
 
@@ -44,6 +44,7 @@ class mypayments extends \table_sql
         $this->show_all_users = $showallusers;
         $this->paymenttypeid = $paymenttypeid;
         $this->courseid = $courseid;
+        $this->pagesize = $pagesize;
         if (!$showallusers && empty($userid)) {
             $this->userid = $USER->id;
         } else {
@@ -198,9 +199,9 @@ class mypayments extends \table_sql
     function get_payment_option_names()
     {
         return array(
-                    PAYMENTS_ALL=>'All', 
-                    PAYMENTS_ONETIME=>'One time payments', 
-                    PAYMENTS_SUBSCRIPTION=>'Subscriptions'
+                    PAYMENTS_ALL=>get_string('all'), 
+                    PAYMENTS_ONETIME=>get_string('displayonetimes', 'report_liqpaydata'), 
+                    PAYMENTS_SUBSCRIPTION=>get_string('displaysubscriptions', 'report_liqpaydata')
                     );
     }
     
@@ -216,8 +217,11 @@ class mypayments extends \table_sql
     if (isset($this->userid)){
         echo '<input type="hidden" name="userid" value="'.$this->userid.'" />';
     }
-    echo \html_writer::tag('label', 'Display payments of the following type:&nbsp;', array('for' => 'paymenttypeselect'));
+    echo \html_writer::tag('label', get_string('fselectpaymenttype', 'report_liqpaydata'), array('for' => 'paymenttypeselect'));
     echo \html_writer::select($this->get_payment_option_names(), 'paymenttypeid', $this->paymenttypeid, array(), array('id' => 'paymenttypeselect'));
+    echo '<br>';
+    echo \html_writer::tag('label', get_string('fselectperpage', 'report_liqpaydata'), array('for' => 'perpage'));
+    echo \html_writer::select([5=>'5',10=>'10', 20=>'20', 50=>'50', 100=>'100'], 'perpage', $this->pagesize, array(), array('id' => 'perpageselect'));
     echo '<noscript style="display:inline">';
     echo '<div><input type="submit" value="'.\get_string('ok').'" /></div>';
     echo '</noscript>';
@@ -226,6 +230,9 @@ class mypayments extends \table_sql
     $PAGE->requires->js_amd_inline("
         require(['jquery'], function($) {
             $('#paymenttypeselect').change(function(e) {
+                $('form#paymentsfilterform').submit();
+            });
+            $('#perpageselect').change(function(e) {
                 $('form#paymentsfilterform').submit();
             });
         });");

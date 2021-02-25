@@ -38,7 +38,7 @@ if (isguestuser()) {
 
 $paymenttypeid          = optional_param('paymenttypeid', PAYMENTS_ALL, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
-$perpage                = optional_param('perpage', 10, PARAM_INT); // How many per page.
+$perpage                = optional_param('perpage', 20, PARAM_INT); // How many per page.
 $userid                 = optional_param('userid', $USER->id, PARAM_INT);
 $invoiceid = optional_param('invoiceid', null, PARAM_INT);
 $invoicetype = optional_param('invoicetype', null, PARAM_TEXT);
@@ -52,9 +52,9 @@ $user = \core_user::get_user($userid);
 if (!$user || !core_user::is_real_user($userid)) {
     throw new moodle_exception('invaliduser', 'error');
 }
-$params = array('userid' => $userid, 'paymenttypeid'=>$paymenttypeid);
+$params = array('userid' => $userid, 'paymenttypeid'=>$paymenttypeid, 'perpage'=>$perpage);
 if (!empty($showpage)) {
-    $params = array_merge($params, array('page'=>$showpage, 'perpage'=>$perpage));
+    $params = array_merge($params, array('page'=>$showpage));
 }
 if (!empty($courseid)) {
     $params = array_merge($params, array('courseid'=>$courseid));

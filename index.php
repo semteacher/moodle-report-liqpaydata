@@ -38,12 +38,12 @@ $courseid               = optional_param('courseid', null, PARAM_INT);
 $enrolcourseid          = optional_param('enrolcourseid', null, PARAM_INT);
 $enrolmentstatuschange  = optional_param('enrolmentstatuschange', null, PARAM_INT);
 $showpage               = optional_param('page', 0, PARAM_INT);     // Which page to show.
-$perpage                = optional_param('perpage', 10, PARAM_INT); // How many per page.
+$perpage                = optional_param('perpage', 20, PARAM_INT); // How many per page.
 
 // create page url
-$params = array('paymenttypeid'=>$paymenttypeid);
+$params = array('paymenttypeid'=>$paymenttypeid, 'perpage'=>$perpage);
 if (!empty($showpage)) {
-    $params = array_merge($params, array('page'=>$showpage, 'perpage'=>$perpage));
+    $params = array_merge($params, array('page'=>$showpage));
 }
 if (!isset($courseid)) {
     $context = \context_system::instance();
@@ -84,7 +84,7 @@ if (isset($enrolcourseid)&&isset($enrolmentstatuschange)){
 }
 
 //prepare table data
-$table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid, $courseid);
+$table = new \report_liqpaydata\table\mypayments('report_allpayments', true, $paymenttypeid, $courseid, null, $perpage);
 $table->define_baseurl($PAGE->url);
 //prepare for filtering by paymet type
 $displaylist = $table->get_payment_option_names();

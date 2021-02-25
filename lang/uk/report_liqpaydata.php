@@ -32,7 +32,7 @@ $string['profilepayments'] = 'Звіт про оплати через LiqPay';
 $string['liqpaydata:siteview'] = 'Звіт про оплати через LiqPay payments report - доступ на рівні сайту';
 $string['liqpaydata:courseview'] = 'Звіт про оплати через LiqPay payments report - доступ на рівні курсу';
 $string['recordedpayments'] = 'Зареєстровані оплати';
-$string['rpaymentssummary'] = 'Успішних оплат: {a->count}, на загальну суму: {$a->currency} {$a->gross}';
+$string['rpaymentssummary'] = 'Успішних оплат: {$a->count}, на загальну суму: {$a->currency} {$a->gross}';
 $string['tcoluser']= 'Користувач';
 $string['tcolenroldate']= 'Дата зарахування';
 $string['tcolenrolstatus'] = 'Статус в курсі';
@@ -55,6 +55,10 @@ $string['stunenrolled'] = 'Відрахований';
 $string['stunknown'] = 'Невідомо';
 $string['dosuspend'] = '(Призупинити)';
 $string['doactivate'] = '(Активувати)';
+$string['displayonetimes'] = 'Одноразові оплати';
+$string['displaysubscriptions'] = 'Підписки';
+$string['fselectpaymenttype'] = 'Показувати оплати такого типу:&nbsp;';
+$string['fselectperpage'] = 'Показувати рядків на сторінці:&nbsp;';
 
 //report settings
 $string['invcompanyname'] = 'Назва компанії';
